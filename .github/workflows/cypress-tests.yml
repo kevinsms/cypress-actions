@@ -25,7 +25,6 @@ jobs:
         with:
           install-command: yarn install
           browser: electron
-          record: true
           group: UI Electron
           run: ${{ github.event.inputs.spec }}
 
