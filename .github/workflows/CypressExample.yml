@@ -1,4 +1,4 @@
-name: Cypress Cloud
+name: Cypress Examples
 
 on:
   workflow_dispatch:
@@ -16,10 +16,6 @@ jobs:
     steps:
       - name: Get code
         uses: actions/checkout@v4.1.2
-      - name: Download the build folder
-        uses: actions/download-artifact@v4
-        with:
-          name: build
 
       - name: Cypress run
         uses: cypress-io/github-action@v6
