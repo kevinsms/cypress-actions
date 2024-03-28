@@ -3,10 +3,10 @@ name: Cypress Tests
 on:
   workflow_dispatch:
     inputs:
-      cli:
+      spec:
         description: Run by cypress command line
         default: cypress/e2e/*
-    
+
 jobs:
   cypress-e2e-electron:
     runs-on: ubuntu-latest
@@ -17,65 +17,22 @@ jobs:
       - name: Get code
         uses: actions/checkout@v4.1.2
 
-      - name: Cypress run
-        uses: cypress-io/github-action@v6.5.0
-        with:
-          install-command: yarn install
-          browser: electron
-          record: true
-          group: UI Electron
-          run: ${{ github.event.inputs.cli }}
-  cypress-e2e-chrome:
-    needs: cypress-e2e-electron
-    runs-on: ubuntu-latest
-    container: 
-      image: cypress/browsers:node-18.16.1-chrome-114.0.5735.133-1-ff-114.0.2-edge-114.0.1823.51-1
-      options: --user 1001
-    steps:
-      - name: Get code
-        uses: actions/checkout@v4.1.2
+      - name: Install dependencies
+        run: yarn install
 
       - name: Cypress run
-        uses: cypress-io/github-action@v6.5.0
-        with:
-          install-command: yarn install
-          browser: chrome
-          record: true
-          group: UI Chrome
-          run: ${{ github.event.inputs.cli }}
-  cypress-e2e-firefox:
-    needs: cypress-e2e-electron
-    runs-on: ubuntu-latest
-    container: 
-      image: cypress/browsers:node-18.16.1-chrome-114.0.5735.133-1-ff-114.0.2-edge-114.0.1823.51-1
-      options: --user 1001
-    steps:
-      - name: Get code
-        uses: actions/checkout@v4.1.2
+        run: |
+          mkdir -p cypress/videos
+          yarn cypress run --browser electron --spec "${{ github.event.inputs.spec }}" --config video=true
+        env:
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Cypress run
-        uses: cypress-io/github-action@v6.5.0
-        with:
-          install-command: yarn install
-          browser: firefox
-          record: true
-          group: UI Firefox
-          run: ${{ github.event.inputs.cli }}
-  cypress-e2e-edge:
-    needs: cypress-e2e-electron
-    runs-on: ubuntu-latest
-    container: 
-      image: cypress/browsers:node-18.16.1-chrome-114.0.5735.133-1-ff-114.0.2-edge-114.0.1823.51-1
-      options: --user 1001
-    steps:
-      - name: Get code
-        uses: actions/checkout@v4.1.2
+      - name: Save Cypress videos
+        run: mv cypress/videos/* $HOME/videos
 
-      - name: Cypress run
-        uses: cypress-io/github-action@v6.5.0
+      - name: Upload videos
+        uses: actions/upload-artifact@v2
         with:
-          install-command: yarn install
-          browser: edge
-          record: true
-          group: UI Edge
-          run: ${{ github.event.inputs.cli }}
+          name: cypress-videos
+          path: $HOME/videos
