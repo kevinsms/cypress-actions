@@ -20,16 +20,25 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      - name: Cypress run
+      - name: Cypress run with screenshots and videos
         run: |
+          mkdir -p cypress/screenshots
           mkdir -p cypress/videos
-          yarn cypress run --browser electron --spec "${{ github.event.inputs.spec }}" --config video=true
+          yarn cypress run --browser electron --spec "${{ github.event.inputs.spec }}" --config video=true --config screenshotOnRunFailure=true
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Save Cypress videos
-        run: mv cypress/videos/* $HOME/videos
+      - name: Save Cypress screenshots and videos
+        run: |
+          mv cypress/screenshots $HOME/screenshots
+          mv cypress/videos $HOME/videos
+
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v2
+        with:
+          name: cypress-screenshots
+          path: $HOME/screenshots
 
       - name: Upload videos
         uses: actions/upload-artifact@v2
