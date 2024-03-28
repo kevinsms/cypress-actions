@@ -20,14 +20,13 @@ jobs:
       - name: Install dependencies
         run: yarn install
         
-      - name: Run E2E tests
-        run: ${{ github.event.inputs.cli }}
-        
-      - name: Save Cypress video artifact
-        if: always() 
-        uses: actions/upload-artifact@v2
+      - name: Cypress run
+        uses: cypress-io/github-action@v6.5.0
         with:
-          name: cypress-videos
-          path: cypress/videos/login.cy.js.mp4
+          install-command: yarn install
+          browser: electron
+          record: true
+          group: UI Electron
+          run: ${{ github.event.inputs.spec }}
 
 
