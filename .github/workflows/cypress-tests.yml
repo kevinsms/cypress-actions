@@ -3,9 +3,9 @@ name: Cypress Tests
 on:
   workflow_dispatch:
     inputs:
-      spec:
+      cli:
         description: Run by cypress command line
-        default: cypress/e2e/*
+        default: yarn cypress run
 
 jobs:
   cypress-electron-tests:
@@ -16,18 +16,16 @@ jobs:
     steps:
       - name: Get code
         uses: actions/checkout@v4.1.2
-
+        
       - name: Install dependencies
         run: yarn install
-
+        
       - name: Run E2E tests
         run: ${{ github.event.inputs.cli }}
-
+        
       - name: Save Cypress video artifact
         if: always() 
         uses: actions/upload-artifact@v2
         with:
           name: cypress-videos
           path: cypress/videos/login.cy.js.mp4
-
-
